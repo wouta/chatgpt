@@ -299,12 +299,37 @@
     });
   </script>
 
-  <script>
-    $('.button').bind('click', function () {
-      $('.vmsetupModal').addClass('hide');
-    });
-  </script>
+  <!-- JavaScript-code voor het sluiten van de overlay -->
+<script>
+  $(document).ready(function() {
 
+    // Functie om de overlay te tonen
+    function showOverlay() {
+      $('#ModalOverlay').removeClass('hide');
+    }
+
+    // Functie om de overlay te verbergen
+    function hideOverlay() {
+      $('#ModalOverlay').addClass('hide');
+    }
+
+    // Controleer of de extra PHP-versie overeenkomt met de huidige PHP-versie
+    if (document.getElementById("php-sectie-extra").style.display !== "none") {
+      phpVersion2 = document.getElementById("php-versie-extra").value;
+      if (phpVersion2 === phpVersion) {
+        var element2 = document.getElementById("vmsetupModal_php");
+        element2.classList.remove("hide");
+        console.log("hide removed from modal");
+        showOverlay(); // Open de overlay-modalevenster automatisch
+      }
+    }
+
+    // Klikfunctie voor de knop "Dismiss"
+    $('.vmsetupModal .button').click(function() {
+      hideOverlay(); // Sluit de overlay-modalevenster
+    });
+  });
+</script>
 
 </head>
 
