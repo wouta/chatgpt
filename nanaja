@@ -258,22 +258,22 @@
     });
 
   </script>
-<script>
-   $('.button').bind('click', function() {
-	$('.vmsetupModal').addClass('hide');
-});
-
-</script>
 </head>
 
 <body>
 
-  <div class="vmsetupModal">
-    <img src="https://100dayscss.com/codepen/alert.png" width="44" height="38" />
+  <!-- HTML for the modal -->
+  <div id="ModalOverlay" class="overlay hide">
+    <div id="ModalFrame" class="frame hide">
+      <div id="vmsetupModal_php" class="vmsetupModal hide">
+        <img src="https://100dayscss.com/codepen/alert.png" width="44" height="38" />
         <span class="title">Oh snap!</span>
-        <p>An error has occured while creating an error report.</p>
+        <p>An error has occurred while creating an error report.</p>
         <div class="button">Dismiss</div>
+      </div>
+    </div>
   </div>
+  
 
   <div class="container">
     <div class="page-header">
@@ -543,7 +543,17 @@
 
       if (document.getElementById("php-sectie-extra").style.display !== "none") {
         phpVersion2 = document.getElementById("php-versie-extra").value;
+        if (phpVersion2 === phpVersion) {
+          //$('#vmsetupModal').removeClass('hide');
+          var element = document.getElementById("ModalOverlay");
+          var element1 = document.getElementById("ModalFrame");
+          var element2 = document.getElementById("vmsetupModal_php");
+          element.classList.remove("hide");
+          element1.classList.remove("hide");
+          element2.classList.remove("hide");
 
+          return;
+        }
         resultaat += "Extra PHP-versie: " + phpVersion2 + "<br>";
       }
 
@@ -565,7 +575,6 @@
         $(this).text("Resultaat gekopieerd!").addClass("disabled");
       }
     });
-
 
   </script>
 </body>
