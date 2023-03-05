@@ -114,15 +114,6 @@
       background: rgba(73, 168, 68, 1);
     }
 
-    .modal-backdrop {
-      background-color: red;
-    }
-
-    .modal-content {
-      background-color: green;
-    }
-
-
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 
     .overlay {
@@ -175,7 +166,7 @@
       -webkit-animation: hide-vmsetupModal 0.6s ease-in-out both;
       animation: hide-vmsetupModal 0.6s ease-in-out both;
     }
-
+    
     .vmsetupModal img {
       margin-top: 24px;
     }
@@ -300,6 +291,7 @@
   </script>
 
   <!-- JavaScript-code voor het sluiten van de overlay -->
+
 <script>
   $(document).ready(function() {
 
@@ -327,6 +319,7 @@
     // Klikfunctie voor de knop "Dismiss"
     $('.vmsetupModal .button').click(function() {
       hideOverlay(); // Sluit de overlay-modalevenster
+      
     });
   });
 </script>
