@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Server configuratie</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <style>
+    .panel-title {
+      padding-left: 60px;
+    }
+
+    /* CSS for toggle checkbox */
+    #toggle-apache,
+    #toggle-nginx,
+    #toggle-php,
+    #toggle-php-extra {
+      display: none;
+    }
+
+    .toggle-checkbox label,
+    .toggle-checkbox label,
+    .toggle-checkbox label {
+      transition: 400ms all ease-in-out 50ms;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+    }
+
+    .toggle-checkbox {
+      height: 25px;
+      width: 50px;
+      margin-top: -20px;
+      margin-left: 0px;
+      background: rgba(43, 43, 43, 1);
+      position: relative;
+      box-shadow: 0 0 2px rgba(43, 43, 43, 1);
+      border-radius: 50px;
+      transition: background 0.5s ease-out, box-shadow 0.5s ease-out;
+    }
+
+    #toggle-apache:checked~.toggle-checkbox,
+    #toggle-nginx:checked~.toggle-checkbox,
+    #toggle-php:checked~.toggle-checkbox,
+    #toggle-php-extra:checked~.toggle-checkbox {
+      background: rgba(73, 168, 68, 1);
+      box-shadow: 0 0 2px rgba(73, 168, 68, 1);
+    }
+
+    .toggle-checkbox label::before {
+      content: '';
+      height: 10px;
+      width: 2px;
+      position: absolute;
+      top: calc(50% - 5px);
+      left: calc(50% - 1px);
+      transform: rotate(45deg);
+      background: rgba(43, 43, 43, 1);
+      border-radius: 5px;
+    }
+
+    .toggle-checkbox label::after {
+      content: '';
+      height: 2px;
+      width: 10px;
+      position: absolute;
+      top: calc(50% - 1px);
+      left: calc(50% - 5px);
+      transform: rotate(45deg);
+      background: rgba(43, 43, 43, 1);
+      border-radius: 5px;
+    }
+
+    .toggle-checkbox label {
+      height: 20px;
+      width: 20px;
+      background: rgba(255, 255, 255, 1);
+      position: absolute;
+      top: 2.5px;
+      left: 2.5px;
+      cursor: pointer;
+      border-radius: 50px;
+    }
+
+    #toggle-apache:checked~.toggle-checkbox label,
+    #toggle-nginx:checked~.toggle-checkbox label,
+    #toggle-php:checked~.toggle-checkbox label,
+    #toggle-php-extra:checked~.toggle-checkbox label {
+      left: 25px;
+      transform: rotate(360deg);
+    }
+
+    #toggle-apache:checked~.toggle-checkbox label::before,
+    #toggle-nginx:checked~.toggle-checkbox label::before,
+    #toggle-php:checked~.toggle-checkbox label::before,
+    #toggle-php-extra:checked~.toggle-checkbox label::before {
+      position: absolute;
+      top: calc(50%);
+      left: 50%;
+      transform: translateY(-50%) rotate(45deg);
+      background: rgba(73, 168, 68, 1);
+    }
+
+    #toggle-apache:checked~.toggle-checkbox label::after,
+    #toggle-nginx:checked~.toggle-checkbox label::after,
+    #toggle-php:checked~.toggle-checkbox label::after,
+    #toggle-php-extra:checked~.toggle-checkbox label::after {
+      height: 6px;
+      width: 2px;
+      position: absolute;
+      top: calc(55%);
+      left: calc(30%);
+      transform: translateY(-50%) rotate(-40deg);
+      background: rgba(73, 168, 68, 1);
+    }
+
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 400px;
+      height: 400px;
+      margin-top: -200px;
+      margin-left: -200px;
+      border-radius: 2px;
+      /* box-shadow: 1px 2px 10px 0px rgba(0,0,0,0.3); */
+      overflow: hidden;
+      /* background-color: rgba(63, 63, 63, 0.8); */
+      font-family: 'Open Sans', Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .vmsetupModal {
+      position: absolute;
+      width: 280px;
+      /* Vaste breedte */
+      height: 210px;
+      top: 95px;
+      left: 60px;
+      /* transform: translate(-50%, -50%); */
+      background: #fff;
+      border-radius: 3px;
+      box-shadow: 4px 8px 12px 0 rgba(0, 0, 0, 0.4);
+      text-align: center;
+      overflow: hidden;
+      -webkit-animation: show-vmsetupModal 0.7s ease-in-out;
+      animation: show-vmsetupModal 0.7s ease-in-out;
+      z-index: 1000;
+    }
+
+
+    .vmsetupModal.hide {
+      -webkit-animation: hide-vmsetupModal 0.6s ease-in-out both;
+      animation: hide-vmsetupModal 0.6s ease-in-out both;
+    }
+    
+    .vmsetupModal img {
+      margin-top: 24px;
+    }
+
+    .vmsetupModal .title {
+      display: block;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 400;
+      margin: 14px 0 5px 0;
+    }
+
+    .vmsetupModal p {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 19px;
+      margin: 0;
+      padding: 0 30px;
+    }
+
+    .vmsetupModal .button {
+      position: absolute;
+      height: 40px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #F65656;
+      color: #fff;
+      line-height: 40px;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
+
+    .vmsetupModal .button:hover {
+      background: #EC3434;
+    }
+
+    @-webkit-keyframes show-vmsetupModal {
+      0% {
+        transform: scale(0);
+      }
+
+      60% {
+        transform: scale(1.1);
+      }
+
+      80% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes show-vmsetupModal {
+      0% {
+        transform: scale(0);
+      }
+
+      60% {
+        transform: scale(1.1);
+      }
+
+      80% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @-webkit-keyframes hide-vmsetupModal {
+      0% {
+        transform: scale(1);
+      }
+
+      20% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(0);
+      }
+    }
+
+    @keyframes hide-vmsetupModal {
+      0% {
+        transform: scale(1);
+      }
+
+      20% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(0);
+      }
+    }
+  </style>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#toggle-apache').on('click', function () {
+        $('#apache-sectie').slideToggle();
+      });
+      $('#toggle-nginx').on('click', function () {
+        $('#nginx-sectie').slideToggle();
+      });
+      $('#toggle-php').on('click', function () {
+        $('#php-sectie').slideToggle();
+      });
+      $('#toggle-php-extra').on('click', function () {
+        $('#php-sectie-extra').slideToggle();
+      });
+    });
+  </script>
+
+  <!-- JavaScript-code voor het sluiten van de overlay -->
+
+<script>
+  $(document).ready(function() {
+
+    // Functie om de overlay te tonen
+    function showOverlay() {
+      $('#ModalOverlay').removeClass('hide');
+    }
+
+    // Functie om de overlay te verbergen
+    function hideOverlay() {
+      $('#ModalOverlay').addClass('hide');
+    }
+
+    // Controleer of de extra PHP-versie overeenkomt met de huidige PHP-versie
+    if (document.getElementById("php-sectie-extra").style.display !== "none") {
+      phpVersion2 = document.getElementById("php-versie-extra").value;
+      if (phpVersion2 === phpVersion) {
+        var element2 = document.getElementById("vmsetupModal_php");
+        element2.classList.remove("hide");
+        console.log("hide removed from modal");
+        showOverlay(); // Open de overlay-modalevenster automatisch
+      }
+    }
+
+    // Klikfunctie voor de knop "Dismiss"
+    $('.vmsetupModal .button').click(function() {
+      hideOverlay(); // Sluit de overlay-modalevenster
+      
+    });
+  });
+</script>
+
+</head>
+
+<body>
+
+
+  <!-- HTML for the modal -->
+  <div id="ModalOverlay" class="overlay hide">
+  <div id="ModalFrame" class="frame hide">
+    <div id="vmsetupModal_php" class="vmsetupModal hide">
+      <img src="https://100dayscss.com/codepen/alert.png" width="44" height="38" />
+      <span class="title">Oh snap!</span>
+      <p>An error has occurred while creating an error report.</p>
+      <div class="button">Dismiss</div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- <div class="modal fade" id="vmsetupModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="vmsetupModalLabel">Fout bij PHP selecteren</h4>
+        </div>
+        <div class="modal-body">
+          <p id="modal-message"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+-->
+  <div class="container">
+    <div class="page-header">
+      <h1>Server configuratie</h1>
+    </div>
+    <form id="config-form">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <input type="checkbox" id="toggle-apache" checked />
+          <h3 class="panel-title">Apache</h3>
+          <div class="toggle-checkbox">
+            <label for="toggle-apache"></label>
+          </div>
+        </div>
+        <div class="panel-body" id="apache-sectie" style="display: block;">
+          <div class="form-group">
+            <label for="apache-versie">Apache versie:</label>
+            <select class="form-control" id="apache-versie">
+              <option value="apache22">2.2</option>
+              <option value="apache24">2.4</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mpm-type">MPM type:</label>
+            <select class="form-control" id="mpm-type">
+              <option value="prefork">prefork</option>
+              <option value="worker">worker</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ngingx -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <input type="checkbox" id="toggle-nginx" />
+          <h3 class="panel-title">Nginx</h3>
+          <div class="toggle-checkbox">
+            <label for="toggle-nginx"></label>
+          </div>
+        </div>
+        <div class="panel-body" id="nginx-sectie" style="display: none;">
+          <div class="form-group">
+            <label for="nginx-versie">Nginx versie:</label>
+            <select class="form-control" id="nginx-versie">
+              <option value="Nginx22">2.2</option>
+              <option value="Nginx24">2.4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- PHP-->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <input type="checkbox" id="toggle-php" checked />
+          <h3 class="panel-title">PHP</h3>
+          <div class="toggle-checkbox">
+            <label for="toggle-php"></label>
+          </div>
+        </div>
+        <div class="panel-body" id="php-sectie" style="display: block;">
+          <div class="form-group">
+            <label for="php-versie">PHP versie:</label>
+            <select class="form-control" id="php-versie">
+              <option value="7.4">7.4</option>
+              <option value="7.3">7.3</option>
+              <option value="7.2">7.2</option>
+              <option value="7.1">7.1</option>
+              <option value="7.0">7.0</option>
+              <option value="5.6">5.6</option>
+            </select>
+          </div>
+
+
+
+
+
+
+
+          <div class="form-group">
+            <label for="php-cache">PHP cache:</label>
+            <select class="form-control" id="php-cache">
+              <option value="opcache">Opcache</option>
+              <option value="apcu">APCu</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="php-type">PHP type:</label>
+            <select class="form-control" id="php-type">
+              <option value="mod_php">mod_php</option>
+              <option value="php-fpm">php-fpm</option>
+            </select>
+          </div>
+          <!-- extra PHP -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <input type="checkbox" id="toggle-php-extra" />
+              <h3 class="panel-title">Extra PHP</h3>
+              <div class="toggle-checkbox">
+                <label for="toggle-php-extra"></label>
+              </div>
+            </div>
+            <div class="panel-body" id="php-sectie-extra" style="display: none;">
+              <div class="form-group">
+                <label for="php-versie-extra">Extra PHP versie:</label>
+                <select class="form-control" id="php-versie-extra">
+                  <option value="7.4">7.4</option>
+                  <option value="7.3">7.3</option>
+                  <option value="7.2">7.2</option>
+                  <option value="7.1">7.1</option>
+                  <option value="7.0">7.0</option>
+                  <option value="5.6">5.6</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- PHP modules -->
+          <div class="form-group">
+            <label for="php-modules">PHP modules:</label>
+
+            <div class="table-responsive">
+              <table class="table table-condensed php_ext table-php">
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="zendguardloader" name="php-modules[]">mysqlnd</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="ioncube" name="php-modules[]">ioncube</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="sourceguardian" name="php-modules[]">sourceguardian</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="imagick" name="php-modules[]">imagick</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="gmagick" name="php-modules[]">gmagick</label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="fileinfo" name="php-modules[]">fileinfo</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="imap" name="php-modules[]">imap</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="ldap" name="php-modules[]">ldap</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="phalcon" name="php-modules[]">phalcon</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="redis" name="php-modules[]">redis</label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="memcached" name="php-modules[]">memcached</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="memcache" name="php-modules[]">memcache</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="mbstring" name="php-modules[]">mbstring</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="swoole" name="php-modules[]">swoole</label>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="checkbox">
+                        <label><input type="checkbox" value="xdebug" name="php-modules[]">xdebug</label>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Database</h3>
+          <div class="btn-group pull-right btn-fix">
+            <button type="button" class="btn btn-on btn-success" id="database-toggle">Aan</button>
+          </div>
+        </div>
+        <div class="panel-body" id="database-sectie">
+          <div class="form-group">
+            <label for="database-versie">Database versie:</label>
+            <select class="form-control" id="database-versie">
+              <option value="MariaDB105">MariaDB 10.5</option>
+              <option value="MariaDB104">MariaDB 10.4</option>
+              <option value="MySQL8">Mysql 8</option>
+            </select>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Verzenden</button>
+  <button type="button" class="btn btn-default" id="kopie-knop">Kopieer resultaat</button>
+
+  </form>
+  <div class="alert alert-success" role="alert" id="resultaat"></div>
+
+  <!-- JavaScript -->
+  <!--  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script>
+
+    // Verstuur formulier
+    // Verstuur formulier
+    document.getElementById("config-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var apache = document.getElementById("apache-versie").value;
+      var mpm_type = document.getElementById("mpm-type").value;
+      var nginx = document.getElementById("nginx-versie").value;
+      var phpVersion = document.getElementById("php-versie").value;
+      var sqlServer = document.getElementById("database-versie").value;
+      var phpVersion2 = "";
+
+      var resultaat = "";
+
+      if (document.getElementById("apache-sectie").style.display !== "none" && apache !== "") {
+        resultaat += "Apache versie: " + apache + " MPM type: " + mpm_type + "<br>";
+      }
+
+      if (document.getElementById("nginx-sectie").style.display !== "none" && nginx !== "") {
+        resultaat += "nginx versie: " + nginx + "<br>";
+      }
+
+      resultaat += "PHP-versie: " + phpVersion + "<br>";
+
+      if (document.getElementById("php-sectie-extra").style.display !== "none") {
+        phpVersion2 = document.getElementById("php-versie-extra").value;
+        if (phpVersion2 === phpVersion) {
+          //$('#vmsetupModal').removeClass('hide');
+          var element = document.getElementById("ModalOverlay");
+          var element1 = document.getElementById("ModalFrame");
+          var element2 = document.getElementById("vmsetupModal_php");
+          element.classList.remove("hide");
+          element1.classList.remove("hide");
+          element2.classList.remove("hide");
+
+          return;
+        }
+        resultaat += "Extra PHP-versie: " + phpVersion2 + "<br>";
+      }
+
+      resultaat += "SQL-server: " + sqlServer + "<br>";
+      document.getElementById("resultaat").innerHTML = resultaat;
+    });
+
+    // Kopieer resultaat naar klembord
+    $("#kopie-knop").click(function () {
+      var resultaat = $("#resultaat").text().trim();
+      if (resultaat) {
+        var tempInput = $("<input>");
+        $("body").append(tempInput);
+        tempInput.val(resultaat).select();
+        document.execCommand("copy");
+        tempInput.remove();
+        $(this).text("Resultaat gekopieerd!").addClass("disabled");
+      }
+    });
+
+
+    window.onload = function () {
+      var dismissBtn = document.querySelector(".button");
+      dismissBtn.addEventListener("click", function () {
+        var vmsetupModal = document.querySelector(".vmsetupModal");
+        vmsetupModal.classList.add("hide");
+      });
+    };
+  </script>
+</body>
+
+</html>
